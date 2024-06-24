@@ -1,0 +1,65 @@
+action: train # train or test
+name: ??? # name of the experiment needed for the logs
+modality: ["EMG"] # modality used
+total_batch: 128 # total batch size if training is done with gradient accumulation
+batch_size: 32 # batch size for the forward
+gpus: null # gpus adopted
+resume_from: null # checkpoint directory
+logname: null # name of the logs
+models_dir: null # directory containing all the models
+wandb_dir: Experiment_logs # directory for the wandb logs
+aggregation: True
+wandb_name: 'EMG_fe'
+augmentation: False
+
+train:
+  num_iter: 5000        # number of training iterations with total_batch size
+  eval_freq: 50        # evaluation frequency
+  num_clips: 1        # clips adopted in training
+  embedding_size: 1024 # size of the embedding vector
+  dense_sampling:      # sampling version adopted in training for each modality
+    RGB: True
+    EMG: False
+  num_frames_per_clip: # number of frames adopted in training for each modality
+    RGB: 16
+    EMG: 32
+
+save: 
+  num_clips: 1        # clips adopted in training
+  dense_sampling:      # sampling version adopted in training for each modality
+    RGB: True
+    EMG: False
+  num_frames_per_clip: # number of frames adopted in training for each modality
+    RGB: 16
+    EMG: 32
+
+test:
+  num_clips: 1        # number of clips in testing
+  dense_sampling:      # sampling version adopted in test for each modality
+    RGB: True
+    EMG: False
+  num_frames_per_clip: # number of frames adopted in test for each modality
+    RGB: 16
+    EMG: 32
+
+dataset:
+  annotations_path: action-net # path for the annotations data
+  shift: ActionNet-ActionNet  # shifts of the dataset
+  workers: 4                  # number of workers for the dataloader
+  stride: 1                   # stride in case of dense sampling
+  num_classes: 20
+  EMG:
+    features_name: ../an_data/EMG_spec
+  RGB:
+    data_path: ../ek_data/frames # path for the frames data
+
+models: # models adopted              # Model for each modality
+  EMG:
+    model: CNN  # model name
+    dropout: 0.5                      # dropout adopted   
+    normalize: False                  # normalization adopted         
+    transform: False                  # transformation adopted        
+    lr: 0.05                           # learning rate  
+    lr_steps: 5000                      # steps before reducing learning rate
+    sgd_momentum: 0.9                 # momentum for the optimizer
+    weight_decay: 1e-4              # weight decay for the optimizer

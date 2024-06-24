@@ -1,0 +1,67 @@
+action: save # train or test
+name: ??? # name of the experiment needed for the logs
+modality: ["RGB"] # modality used
+total_batch: 128 # total batch size if training is done with gradient accumulation
+batch_size: 32 # batch size for the forward
+gpus: null # gpus adopted
+resume_from: ./saved_models/I3D_SourceOnlyD1
+logname: null # name of the logs
+models_dir: null # directory containing all the models
+wandb_dir: Experiment_logs # directory for the wandb logs
+aggregation: True
+wandb_name: 'RGB_fe'
+augmentation: False
+
+train:
+  num_iter: 5000        # number of training iterations with total_batch size
+  eval_freq: 50        # evaluation frequency
+  num_clips: 1        # clips adopted in training
+  embedding_size: 1024 # size of the embedding vector
+  dense_sampling:      # sampling version adopted in training for each modality
+    RGB: True
+    EMG: False
+  num_frames_per_clip: # number of frames adopted in training for each modality
+    RGB: 16
+    EMG: 32
+
+save: 
+  num_clips: 1        # clips adopted in training
+  dense_sampling:      # sampling version adopted in training for each modality
+    RGB: True
+    EMG: False
+  num_frames_per_clip: # number of frames adopted in training for each modality
+    RGB: 16
+    EMG: 32
+
+test:
+  num_clips: 1        # number of clips in testing
+  dense_sampling:      # sampling version adopted in test for each modality
+    RGB: True
+    EMG: False
+  num_frames_per_clip: # number of frames adopted in test for each modality
+    RGB: 16
+    EMG: 32
+
+dataset:
+  annotations_path: ../an_data/RGB/frames_indices # path for the annotations data
+  shift: S04-S04  # shifts of the dataset
+  workers: 4                  # number of workers for the dataloader
+  stride: 1                   # stride in case of dense sampling
+  num_classes: 20
+  EMG:
+    features_name: ../an_data/EMG_spec
+  RGB:
+    data_path: ../an_data/RGB/frames/selected_frames # path for the frames data
+
+models: #Contains configurations for the action recognition models.
+  RGB: #Configurations specific to the RGB modality.
+    model: I3D #Model to use for RGB modality.
+    dropout: 0.5
+    normalize: False
+    resolution: 224
+    kwargs: {}
+    lr_steps: 3000
+    lr: 0.01
+    sgd_momentum: 0.9
+    weight_decay: 1e-7
+    weight_i3d_rgb: './pretrained_i3d/rgb_imagenet.pt' #Path to the pretrained weights for the RGB model.

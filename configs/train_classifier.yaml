@@ -1,0 +1,67 @@
+#is configuration file sets up parameters for feature extraction using an I3D model
+
+action: save # train or test     #Specifies whether to perform training or testing. In this case, it's set to save, indicating that the script will save features extracted from the dataset
+name: saved_feat_I3D    #name of the saved features
+split: train  #Specifies the dataset split to use
+
+
+#each video(sample) contains 5 clips. Each clip contains 16 RBG frames. 
+
+# videos are divided in segments of fixed length, called clips, by randomly selecting the central point of each segment.
+#Then, the frames of each clip are sampled using one of two different strategies: dense and uniform
+save: # Contains parameters related to saving features.
+  num_clips: 5 # Number of clips per sample.
+  dense_sampling: #Specifies whether dense sampling is used for RGB frames
+    RGB: True
+  num_frames_per_clip:
+    RGB: 16 #Number of frames per RGB clip
+
+
+
+#Each frame is 224x224
+#Each second framed is considered. 6 frames make up an event. 
+
+dataset: #Contains dataset-related configurations.
+  annotations_path: train_val # train_val contains pickle files for different dataset splits (D1, D2, D3) and their corresponding train and test sets. Pikle files contain metadata about the splits 
+  shift: D1-D1
+  workers: 4 # Number of workers for data loading.
+  num_classes: 8
+  stride: 2 # Stride for sampling frames. A stride of 2 means that every second frame will be included in the feature extraction process
+  resolution: 224 # indicating that the frames will be resized to a square shape with dimensions of 224x224 pixels
+  RGB: #: Configurations specific to RGB frames.
+    data_path: ../ek_data/frames #This parameter needs to be filled with the appropriate path.
+    tmpl: "img_{:010d}.jpg" #Template for frame filenames.
+  Event: #Configurations related to event data #events should be the actions like "washing dishes"
+    rgb4e: 6 #each event is associated with 6 RGB frames.
+
+# these are the action recognition models for each modality
+models: #Contains configurations for the action recognition models.
+  RGB: #Configurations specific to the RGB modality.
+    model: I3D #Model to use for RGB modality.
+    num_input: 1024
+    num_classes: 8
+    num_clips: 5
+    dropout: 0.5
+    normalize: False
+    resolution: 224
+    kwargs: {}
+    lr_steps: 3000
+    lr: 0.005
+    sgd_momentum: 0.9
+    weight_decay: 1e-7
+    weight_i3d_rgb: './pretrained_i3d/rgb_imagenet.pt' #Path to the pretrained weights for the RGB model.
+  EMG:
+    num_input: 1664
+    num_classes: 8
+    num_clips: 5
+    dropout: 0.5
+    normalize: False
+    resolution: 224
+    kwargs: {}
+    lr_steps: 100
+    lr: 0.01
+    sgd_momentum: 0.9
+    weight_decay: 1e-7
+    weight_i3d_rgb: './pretrained_i3d/rgb_imagenet.pt' #Path to the pretrained weights for the RGB model.
+
+
